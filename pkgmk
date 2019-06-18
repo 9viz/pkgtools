@@ -5,8 +5,9 @@ die() {
     printf 'error: %s\n' "${1}" >&2
     exit ${2:-1}
 }
+
 log() {
-    printf '%s\n' "${1}" >&2
+    printf 'log: %s\n' "${1}" >&2
 }
 
 check() {
@@ -57,13 +58,13 @@ init() {
 }
 
 usage() {
-    log 'usage:'
-    log 'pkgmk [opt]'
-    log 'opt:'
-    log '-k\tkeep work directory'
-    log '-h\tprint this help message'
-
-    unset -f prtln
+    cat << EOF
+usage:
+pkgmk [opts]
+opts:
+    -k  keep work directory
+    -h  print this help message
+EOF
 }
 
 parse_args() {
