@@ -1,0 +1,36 @@
+ pkgtools
+==========
+
+simple package management tools written in ksh that is intended to be used in
+linux systems. pkgtools offers number of shell scripts that can be used to
+create/add/remove/query a package. pkgtools is heavily inspired by pkgutils from
+CRUX however pkgtools aims to be much simpler than pkgutils and has a "better"
+dependency handling.
+
+ database
+==========
+
+pkgtools' database is purely file based. each package has its own directory
+which has information about the package in separate files.
+`version-release`, `name`, `contents`, `owner`, `dependencies` are the major
+files in a package's entry. `owner` is the person who built the package and
+others should be self explanatory.
+
+ pkgmk
+=======
+
+pkgmk is used to create a package. a pkgfile is simply a ksh script that is
+sourced by pkgmk. the build function in the pkgfile is executed after checking
+if some necessary variables are present in the pkgfile (including the build
+function). pkgtools' pkgfile aims to be pkgutils' Pkgfile compatible with a
+sloppy dependency handling.
+
+pkgmk creates `contents` and `md6sum` in the package's root directory.
+`contents` has contents of packages without root and `md5sum` has the md5sum
+of files that is used by pkgmk in the build process.
+
+ pkgadd
+========
+
+pkgadd extracts the tarball produced by pkgmk and installs it to / or a
+custom root. this makes installing packages to home directory a lot easier.
