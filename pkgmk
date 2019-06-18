@@ -52,6 +52,7 @@ handle_source() {
 }
 
 init() {
+    local i
     for i in "${PKGMK_BUILD}" "${PKGMK_SOURCE}"; {
         [[ ! -d "${i}" ]] && mkdir -p "${i}"
     }
