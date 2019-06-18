@@ -1,0 +1,83 @@
+#!/bin/mksh
+# pkgmk - make package
+
+die() {
+    printf 'error: %s\n' "${1}" >&2
+    exit ${2:-1}
+}
+log() {
+    printf '%s\n' "${1}" >&2
+}
+
+check() {
+    [[ ! -f "${PKGMK_ROOT}/pkgfile" ]] && die 'pkgfile not found'
+
+    . "${PKGMK_ROOT}/pkgfile"
+
+    [[ ! "${name}" ]]                  && die 'name not in pkgfile'
+    [[ ! "${version}" ]]               && die 'version not in pkgfile'
+    [[ ! "${release}" ]]               && die 'release not in pkgfile'
+    [[ ! `typeset +f` = *build* ]]     && die 'build function not in pkgfile'
+
+    [[ ! "${depends}" ]]               && depends=''
+    [[ ! "${source}" ]]                && source=()
+}
+
+extract() {
+    # TODO: maybe consider using file?
+    case ${1} {
+    (*tar*) tar -x -f "${1}" -C "${PKGMK_SRC}" ;;
+    (*zip*) unzip "${1}" -d "${PKGMK_SRC}"     ;;
+    }
+}
+
+handle_source() {
+    local i
+    for i in ${source[@]}; {
+        [[ "${i}" = @(http|ftp|file)* ]] && {
+            [[ ! -f "${PKGMK_ROOT}/${i##*/}" ]] && {
+                log "downloading ${i##*/}"
+                "${PKGMK_DOWNLOAD_PROG}" "${i}"
+            }
+            i="${i##*/}"
+        }
+        [[ ! -f "${i}" ]] && die "${i} not present in build directory"
+        [[ "${i}" = *@(tar|zip) ]] && {
+            extract "${i}"
+            continue
+        }
+        [[ -f "${i}" ]] && cp "${PKGMK_ROOT}/${i}" "${PKGMK_SRC}/${i}"
+    }
+}
+
+init() {
+    for i in "${PKGMK_BUILD}" "${PKGMK_SOURCE}"; {
+        [[ ! -d "${i}" ]] && mkdir -p "${i}"
+    }
+}
+
+usage() {
+    log 'usage:'
+    log 'pkgmk [opt]'
+    log 'opt:'
+    log '-k\tkeep work directory'
+    log '-h\tprint this help message'
+
+    unset -f prtln
+}
+
+parse_args() {
+    local i
+    for i; {
+        case ${i} {
+        (-w) _keep_work=1 ;;
+        (-h) usage        ;;
+        }
+    }
+}
+
+PKGMK_DOWNLOAD_PROG='wget'
+PKGMK_ROOT="${PWD}"
+PKGMK_WORK="${PKGMK_ROOT}/work"
+PKGMK_BUILD="${PKGMK_WORK}/build"
+PKGMK_SRC="${PKGMK_WORK}/src"
