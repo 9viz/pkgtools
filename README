@@ -21,9 +21,9 @@ others should be self explanatory.
 
 pkgmk is used to create a package. a pkgfile is simply a ksh script that is
 sourced by pkgmk. the build function in the pkgfile is executed after checking
-if some necessary variables are present in the pkgfile (including the build
-function). pkgtools' pkgfile aims to be pkgutils' Pkgfile compatible with a
-sloppy dependency handling.
+for some necessary variables in the pkgfile (including the build function).
+pkgtools' pkgfile aims to be pkgutils' Pkgfile compatible with a sloppy dependency
+handling.
 
 pkgmk creates `contents` and `md6sum` in the package's root directory.
 `contents` has contents of packages without root and `md5sum` has the md5sum
