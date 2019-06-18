@@ -35,7 +35,7 @@ extract() {
 handle_source() {
     local i
     for i in ${source[@]}; {
-        [[ "${i}" = @(http|ftp|file)* ]] && {
+        [[ "${i}" = @(https|http|ftp)://* ]] && {
             [[ ! -f "${PKGMK_ROOT}/${i##*/}" ]] && {
                 log "downloading ${i##*/}"
                 "${PKGMK_DOWNLOAD_PROG}" "${i}"
