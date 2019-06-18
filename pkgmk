@@ -27,8 +27,8 @@ check() {
 extract() {
     # TODO: maybe consider using file?
     case ${1} {
-    (*tar*) tar -x -f "${1}" -C "${PKGMK_SRC}" ;;
-    (*zip*) unzip "${1}" -d "${PKGMK_SRC}"     ;;
+    (*\.tar*) tar -x -f "${1}" -C "${PKGMK_SRC}"    ;;
+    (*\.zip*) unzip -q "${1}" -d "${PKGMK_SRC}"     ;;
     }
 }
 
@@ -43,7 +43,7 @@ handle_source() {
             i="${i##*/}"
         }
         [[ ! -f "${i}" ]] && die "${i} not present in build directory"
-        [[ "${i}" = *@(tar|zip) ]] && {
+        [[ "${i}" = *@(\.tar|\.zip)* ]] && {
             extract "${i}"
             continue
         }
@@ -53,7 +53,7 @@ handle_source() {
 
 init() {
     local i
-    for i in "${PKGMK_BUILD}" "${PKGMK_SOURCE}"; {
+    for i in "${PKGMK_BUILD}" "${PKGMK_SRC}"; {
         [[ ! -d "${i}" ]] && mkdir -p "${i}"
     }
 }
