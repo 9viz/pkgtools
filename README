@@ -2,7 +2,7 @@
 ==========
 
 simple package management tools written in ksh that is intended to be used in
-linux systems. pkgtools offers number of shell scripts that can be used to
+linux systems. pkgtools offers a number of shell scripts that can be used to
 create/add/remove/query a package. pkgtools is heavily inspired by pkgutils from
 CRUX however pkgtools aims to be much simpler than pkgutils and has a "better"
 dependency handling.
