@@ -59,14 +59,14 @@ handle_source() {
 }
 
 write_contents() {
+    [[ -f "${PKGMK_ROOT}/contents" ]] && return 0
     _files=()
     contents() {
         for i in "${1}"/*; {
-            [[ -d "${i}" ]] && contents "${i}"
-            [[ -f "${i}" ]] && _files+=("${i/${PKG}/}")
+            [[ -d "${i}" ]] &&  contents "${i}"
+            [[ -f "${i}" ]] && _files+=("${i/${PKG}\//}")
         }
     }
-
     contents "${PKG}"
     for i in ${_files[@]}; {
         echo "${i}" >> "${PKGMK_ROOT}"/contents
@@ -74,6 +74,23 @@ write_contents() {
 
     unset    _files
     unset -f contents
+}
+
+handle_md5sum() {
+    create_md5sum() {
+        log 'creating md5sum'
+        local i
+        for i in "${SRC}"/*; {
+            [[ -f "${i}" ]] &&
+                md5sum "${i##*/}" >> "${PKGMK_ROOT}/md5sum"
+        }
+    }
+
+    [[ ! -f "${PKGMK_ROOT}/md5sum" ]] &&
+        create_md5sum
+    md5sum --status -c "${PKGMK_ROOT}/md5sum" || die 'md5sum check failed' # FIX: GNU blob
+
+    unset -f create_md5sum
 }
 
 init() {
@@ -91,6 +108,7 @@ pkgmk [opts]
 opts:
     -k  keep work directory
     -h  print this help message
+    -M  ignore md5sum checking
 EOF
 }
 
@@ -98,8 +116,9 @@ parse_args() {
     local i
     for i; {
         case ${i} {
-        (-w) _keep_work=1 ;;
-        (-h) usage        ;;
+        (-w) _keep_work=1  ;;
+        (-h) usage         ;;
+        (-M) _ignore_md5=1 ;;
         }
     }
 }
@@ -111,3 +130,10 @@ PKGMK_ROOT="${PWD}"
 PKGMK_WORK="${PKGMK_ROOT}/work"
 PKG="${PKGMK_WORK}/build"
 SRC="${PKGMK_WORK}/src"
+
+init
+handle_source
+cd "${SRC}"
+[[ "${_ignore_md5}" -eq 0 ]] && handle_md5sum
+build
+write_contents
