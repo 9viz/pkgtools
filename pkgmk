@@ -1,4 +1,4 @@
-#!/bin/mksh
+#!/bin/ksh
 # pkgmk - make package
 
 die() {
@@ -63,7 +63,7 @@ write_contents() {
 
     contents "${PKGMK_BUILD}"
     for i in ${_files[@]}; {
-        echo -n "${i}" >> "${PKGMK_ROOT}"/contents
+        echo "${i}" >> "${PKGMK_ROOT}"/contents
     }
 
     unset    _files
