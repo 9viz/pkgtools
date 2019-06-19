@@ -11,25 +11,31 @@ log() {
 }
 
 check() {
-    [[ ! -f "${PKGMK_ROOT}/pkgfile" ]] && die 'pkgfile not found'
+    [[ ! -f "${PKGMK_ROOT}/pkgfile" ]]   && die 'pkgfile not found'
 
     . "${PKGMK_ROOT}/pkgfile"
 
-    [[ ! "${name}" ]]                  && die 'name not in pkgfile'
-    [[ ! "${version}" ]]               && die 'version not in pkgfile'
-    [[ ! "${release}" ]]               && die 'release not in pkgfile'
-    [[ ! `typeset +f` = *build* ]]     && die 'build function not in pkgfile'
+    [[ ! "${name}" ]]                    && die 'name not in pkgfile'
+    [[ ! "${version}" ]]                 && die 'version not in pkgfile'
+    [[ ! "${release}" ]]                 && die 'release not in pkgfile'
+    [[ ! `typeset +f` = *build* ]]       && die 'build function not in pkgfile'
 
-    [[ ! "${depends}" ]]               && depends=''
-    [[ ! "${source}" ]]                && source=()
+    [[ ! "${depends}" ]]                 && depends=()
+    [[ ! "${source}" ]]                  && source=()
+
+    for i in ${depends[@]}; {
+        [[ ! -d "${PKGTOOLS_DB}/${i}" ]] &&
+            die "dependency ${i} not installed"
+    }
+    unset i
 }
 
 extract() {
     # TODO: maybe consider using file?
     log "extracting ${1}"
     case ${1} {
-    (*\.tar*) tar -x -f "${1}" -C "${PKGMK_SRC}" ;;
-    (*\.zip*) unzip -q "${1}" -d "${PKGMK_SRC}"  ;;
+    (*\.tar*) tar -x -f "${1}" -C "${SRC}" ;;
+    (*\.zip*) unzip -q "${1}" -d "${SRC}"  ;;
     }
 }
 
@@ -48,7 +54,7 @@ handle_source() {
             extract "${i}"
             continue
         }
-        [[ -f "${i}" ]] && cp "${PKGMK_ROOT}/${i}" "${PKGMK_SRC}/${i}"
+        [[ -f "${i}" ]] && cp "${PKGMK_ROOT}/${i}" "${SRC}/${i}"
     }
 }
 
@@ -57,11 +63,11 @@ write_contents() {
     contents() {
         for i in "${1}"/*; {
             [[ -d "${i}" ]] && contents "${i}"
-            [[ -f "${i}" ]] && _files+=("${i}")
+            [[ -f "${i}" ]] && _files+=("${i/${PKG}/}")
         }
     }
 
-    contents "${PKGMK_BUILD}"
+    contents "${PKG}"
     for i in ${_files[@]}; {
         echo "${i}" >> "${PKGMK_ROOT}"/contents
     }
@@ -72,10 +78,9 @@ write_contents() {
 
 init() {
     local i
-    for i in "${PKGMK_BUILD}" "${PKGMK_SRC}"; {
+    for i in "${PKG}" "${SRC}"; {
         [[ ! -d "${i}" ]] && mkdir -p "${i}"
     }
-    cd "${PKGMK_SRC}"
     check
 }
 
@@ -99,8 +104,10 @@ parse_args() {
     }
 }
 
+# TODO: move PKGTOOLS_DB to a sep file
+PKGTOOLS_DB="/var/lib/pkg"
 PKGMK_DOWNLOAD_PROG='wget'
 PKGMK_ROOT="${PWD}"
 PKGMK_WORK="${PKGMK_ROOT}/work"
-PKGMK_BUILD="${PKGMK_WORK}/build"
-PKGMK_SRC="${PKGMK_WORK}/src"
+PKG="${PKGMK_WORK}/build"
+SRC="${PKGMK_WORK}/src"
