@@ -26,9 +26,10 @@ check() {
 
 extract() {
     # TODO: maybe consider using file?
+    log "extracting ${1}"
     case ${1} {
-    (*\.tar*) tar -x -f "${1}" -C "${PKGMK_SRC}"    ;;
-    (*\.zip*) unzip -q "${1}" -d "${PKGMK_SRC}"     ;;
+    (*\.tar*) tar -x -f "${1}" -C "${PKGMK_SRC}" ;;
+    (*\.zip*) unzip -q "${1}" -d "${PKGMK_SRC}"  ;;
     }
 }
 
@@ -51,11 +52,31 @@ handle_source() {
     }
 }
 
+write_contents() {
+    _files=()
+    contents() {
+        for i in "${1}"/*; {
+            [[ -d "${i}" ]] && contents "${i}"
+            [[ -f "${i}" ]] && _files+=("${i}")
+        }
+    }
+
+    contents "${PKGMK_BUILD}"
+    for i in ${_files[@]}; {
+        echo -n "${i}" >> "${PKGMK_ROOT}"/contents
+    }
+
+    unset    _files
+    unset -f contents
+}
+
 init() {
     local i
     for i in "${PKGMK_BUILD}" "${PKGMK_SRC}"; {
         [[ ! -d "${i}" ]] && mkdir -p "${i}"
     }
+    cd "${PKGMK_SRC}"
+    check
 }
 
 usage() {
