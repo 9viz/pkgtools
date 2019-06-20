@@ -1,0 +1,42 @@
+#!/bin/ksh
+
+usage() {
+    cat << EOF
+usage:
+pkgadd [opts] <pkgtar>
+    -f  force package installation
+    -u  upgrade package
+    -r  use alternate root
+    -h  print this message
+EOF
+}
+
+write_contents() {
+    [[ -f "${PKGMK_ROOT}/contents" ]] && return 0
+    _files=()
+    contents() {
+        for i in "${1}"/*; {
+            [[ -d "${i}" ]] &&  contents "${i}"
+            [[ -f "${i}" ]] && _files+=("${i/${PKG}\//}")
+        }
+    }
+    contents "${PKG}"
+    for i in ${_files[@]}; {
+        echo "${i}" >> "${PKGMK_ROOT}"/contents
+    }
+
+    unset    _files
+    unset -f contents
+}
+
+parse_args() {
+    while [ "${1}" ]; do
+        case ${1} {
+        (-h) usage              ;;
+        (-f) force=1            ;;
+        (-u) upgrade=1          ;;
+        (-r) root="${2}"; shift ;;
+        }
+    shift
+    done
+}
