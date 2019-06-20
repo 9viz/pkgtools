@@ -58,23 +58,7 @@ handle_source() {
     }
 }
 
-write_contents() {
-    [[ -f "${PKGMK_ROOT}/contents" ]] && return 0
-    _files=()
-    contents() {
-        for i in "${1}"/*; {
-            [[ -d "${i}" ]] &&  contents "${i}"
-            [[ -f "${i}" ]] && _files+=("${i/${PKG}\//}")
-        }
-    }
-    contents "${PKG}"
-    for i in ${_files[@]}; {
-        echo "${i}" >> "${PKGMK_ROOT}"/contents
-    }
 
-    unset    _files
-    unset -f contents
-}
 
 handle_md5sum() {
     create_md5sum() {
@@ -93,12 +77,10 @@ handle_md5sum() {
     unset -f create_md5sum
 }
 
-init() {
-    local i
-    for i in "${PKG}" "${SRC}"; {
-        [[ ! -d "${i}" ]] && mkdir -p "${i}"
-    }
-    check
+mkpkg() {
+    cd "${PKG}"
+    tar czf "${PKGMK_ROOT}/${name}#${version}-${release}.pkg.tar.gz" ./
+    log 'package created'
 }
 
 usage() {
@@ -123,6 +105,23 @@ parse_args() {
     }
 }
 
+main() {
+    parse_args "${@}"
+
+    local i
+    for i in "${PKG}" "${SRC}"; {
+        [[ ! -d "${i}" ]] && mkdir -p "${i}"
+    }
+
+    check
+    handle_source
+    [[ ${_ignore_md5} -eq 0 ]] && handle_md5sum
+    cd "${SRC}"
+    build
+    mkpkg
+    [[ ${_keep_work} -eq 0 ]] && rm -rf "${PKGMK_WORK}"
+}
+
 # TODO: move PKGTOOLS_DB to a sep file
 PKGTOOLS_DB="/var/lib/pkg"
 PKGMK_DOWNLOAD_PROG='wget'
@@ -131,9 +130,4 @@ PKGMK_WORK="${PKGMK_ROOT}/work"
 PKG="${PKGMK_WORK}/build"
 SRC="${PKGMK_WORK}/src"
 
-init
-handle_source
-cd "${SRC}"
-[[ "${_ignore_md5}" -eq 0 ]] && handle_md5sum
-build
-write_contents
+main "${@}"
