@@ -25,9 +25,8 @@ for some necessary variables in the pkgfile (including the build function).
 pkgtools' pkgfile aims to be pkgutils' Pkgfile compatible with a sloppy dependency
 handling.
 
-pkgmk creates `contents` and `md6sum` in the package's root directory.
-`contents` has contents of packages without root and `md5sum` has the md5sum
-of files that is used by pkgmk in the build process.
+pkgmk creates `md5sum` in the package's root directory.
+`md5sum` is used for checksums.
 
  pkgadd
 ========
