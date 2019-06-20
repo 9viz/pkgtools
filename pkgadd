@@ -1,4 +1,5 @@
 #!/bin/ksh
+# pkgadd - merge tarball to root
 
 usage() {
     cat << EOF

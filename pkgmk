@@ -58,8 +58,6 @@ handle_source() {
     }
 }
 
-
-
 handle_md5sum() {
     create_md5sum() {
         log 'creating md5sum'
