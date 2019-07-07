@@ -17,7 +17,6 @@ check() {
 
     [[ ! "${name}" ]]                    && die 'name not in pkgfile'
     [[ ! "${version}" ]]                 && die 'version not in pkgfile'
-    [[ ! "${release}" ]]                 && die 'release not in pkgfile'
     [[ ! `typeset +f` = *build* ]]       && die 'build function not in pkgfile'
 
     [[ ! "${depends}" ]]                 && depends=()
@@ -77,7 +76,7 @@ handle_md5sum() {
 
 mkpkg() {
     cd "${PKG}"
-    tar czf "${PKGMK_ROOT}/${name}#${version}-${release}.pkg.tar.gz" ./
+    tar czf "${PKGMK_ROOT}/${name}#${version}.pkg.tar.gz" ./
     log 'package created'
 }
 
