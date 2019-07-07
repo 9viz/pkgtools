@@ -11,6 +11,7 @@ log() {
 }
 
 check() {
+    local i
     [[ ! -f "${PKGMK_ROOT}/pkgfile" ]]   && die 'pkgfile not found'
 
     . "${PKGMK_ROOT}/pkgfile"
@@ -26,7 +27,6 @@ check() {
         [[ ! -d "${PKGTOOLS_DB}/${i}" ]] &&
             die "dependency ${i} not installed"
     }
-    unset i
 }
 
 extract() {
@@ -74,8 +74,31 @@ handle_md5sum() {
     unset -f create_md5sum
 }
 
+get_pkg_content() {
+    for i in "${1:-${PKG}}"/*; {
+        [[ -d "${i}" ]] && get_pkg_content "${i}"
+        [[ -e "${i}" ]] && [[ "${i}" != "${PKG}${PKGTOOLS_DB}"* ]] &&
+            echo "${i/${PKG}\//}"
+    }
+}
+
 mkpkg() {
+    local i db
+    db="${PKG}${PKGTOOLS_DB}"
     cd "${PKG}"
+    mkdir -p "${db}"
+    # FIX: find out why the function prints duplicate values
+    get_pkg_content | uniq > "${db}/contents"
+
+    echo "${version}" > "${db}/version"
+    echo "${USER}" > "${db}/owner"
+
+    touch "${db}/depends"
+
+    for i in ${depends[@]}; {
+        echo "${i}" >> "${db}/depends"
+    }
+
     tar czf "${PKGMK_ROOT}/${name}#${version}.pkg.tar.gz" ./
     log 'package created'
 }
