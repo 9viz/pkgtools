@@ -22,7 +22,7 @@ EOF
 }
 
 parse_args() {
-    while [ "${1}" ]; do
+    while [[ "${1}" ]]; do
         case ${1} {
         (-h) usage              ;;
         (-f) force=1            ;;
