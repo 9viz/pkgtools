@@ -1,6 +1,15 @@
 #!/bin/ksh
 # pkgadd - merge tarball to root
 
+die() {
+    printf 'error: %s\n' "${1}" >&2
+    exit ${2:-1}
+}
+
+log() {
+    printf 'log: %s\n' "${1}" >&2
+}
+
 usage() {
     cat << EOF
 usage:
@@ -10,24 +19,6 @@ pkgadd [opts] <pkgtar>
     -r  use alternate root
     -h  print this message
 EOF
-}
-
-write_contents() {
-    [[ -f "${PKGMK_ROOT}/contents" ]] && return 0
-    _files=()
-    contents() {
-        for i in "${1}"/*; {
-            [[ -d "${i}" ]] &&  contents "${i}"
-            [[ -f "${i}" ]] && _files+=("${i/${PKG}\//}")
-        }
-    }
-    contents "${PKG}"
-    for i in ${_files[@]}; {
-        echo "${i}" >> "${PKGMK_ROOT}"/contents
-    }
-
-    unset    _files
-    unset -f contents
 }
 
 parse_args() {
@@ -41,3 +32,5 @@ parse_args() {
     shift
     done
 }
+
+PKGADD_IGNORE=("etc/*")
