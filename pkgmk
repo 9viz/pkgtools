@@ -23,7 +23,7 @@ check() {
     [[ ! "${depends}" ]]                 && depends=()
     [[ ! "${source}" ]]                  && source=()
 
-    for i in ${depends[@]}; {
+    [[ ${_check_depends} -ne 0 ]] && for i in ${depends[@]}; {
         [[ ! -d "${PKGTOOLS_DB}/${i}" ]] &&
             die "dependency ${i} not installed"
     }
@@ -87,6 +87,7 @@ mkpkg() {
     db="${PKG}${PKGTOOLS_DB}"
     cd "${PKG}"
     mkdir -p "${db}"
+
     # FIX: find out why the function prints duplicate values
     get_pkg_content | uniq > "${db}/contents"
 
@@ -111,6 +112,7 @@ opts:
     -k  keep work directory
     -h  print this help message
     -M  ignore md5sum checking
+    -D  don't check dependencies
 EOF
 }
 
@@ -118,9 +120,10 @@ parse_args() {
     local i
     for i; {
         case ${i} {
-        (-w) _keep_work=1  ;;
-        (-h) usage         ;;
-        (-M) _ignore_md5=1 ;;
+        (-w) _keep_work=1     ;;
+        (-h) usage            ;;
+        (-M) _ignore_md5=1    ;;
+	(-D) _check_depends=0 ;;
         }
     }
 }
