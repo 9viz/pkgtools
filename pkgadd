@@ -10,6 +10,12 @@ log() {
     printf 'log: %s\n' "${1}" >&2
 }
 
+do_upgrade_check() {
+    [[ -d "${PKGTOOLS_DB}/${PKG_NAME}" ]] || die 'package not installed!'
+    read -r ver < "${PKGTOOLS_DB}/${PKG_NAME}/version"
+    [[ "${ver}" != "${PKG_VERSION}" ]]    || die 'package version is the same'
+}
+
 usage() {
     cat << EOF
 usage:
@@ -28,9 +34,23 @@ parse_args() {
         (-f) force=1            ;;
         (-u) upgrade=1          ;;
         (-r) root="${2}"; shift ;;
+        (*)  PKGADD_TAR="${1}"  ;;
         }
     shift
     done
 }
 
+main() {
+    parse_args "${@}"
+    [[ "${PKGADD_TAR}" != *\.pkg\.* ]] &&
+        die 'not package tarball'
+    PKG_NAME="${PKGADD_TAR%\#*}"
+    PKG_VERSION="${PKGADD_TAR#*\#}"
+    PKG_VERSION="${PKG_VERSION%\.pkg*}"
+}
+
+PKGTOOLS_DB="/var/lib/pkg"
 PKGADD_IGNORE=("etc/*")
+PKGADD_TAR=""
+PKG_NAME=""
+PKG_VERSION=""
