@@ -16,6 +16,12 @@ do_upgrade_check() {
     [[ "${ver}" != "${PKG_VERSION}" ]]    || die 'package version is the same'
 }
 
+upgrade() {
+}
+
+install() {
+}
+
 usage() {
     cat << EOF
 usage:
@@ -44,6 +50,7 @@ main() {
     parse_args "${@}"
     [[ "${PKGADD_TAR}" != *\.pkg\.* ]] &&
         die 'not package tarball'
+    PKGADD_TAR="${PKGADD_TAR##*/}"
     PKG_NAME="${PKGADD_TAR%\#*}"
     PKG_VERSION="${PKGADD_TAR#*\#}"
     PKG_VERSION="${PKG_VERSION%\.pkg*}"
