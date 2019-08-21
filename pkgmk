@@ -76,7 +76,7 @@ handle_md5sum() {
 
 mkpkg() {
     local i db
-    db="${PKG}${PKGTOOLS_DB}"
+    db="${PKG}${PKGTOOLS_DB}/${name}"
     cd "${PKG}"
     mkdir -p "${db}"
 
@@ -114,7 +114,7 @@ parse_args() {
         (-w) _keep_work=1     ;;
         (-h) usage            ;;
         (-M) _ignore_md5=1    ;;
-    (-D) _check_depends=0 ;;
+        (-D) _check_depends=0 ;;
         }
     }
 }
