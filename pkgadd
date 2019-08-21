@@ -35,6 +35,9 @@ upgrade() {
 }
 
 install() {
+    [[ -d "${PKGTOOLS_DB}/${PKG_NAME}" ]] &&
+        die "package ${PKG_NAME} already installed! use -u to upgrade"
+    tar -C "${root}" -x -z -f "${PKGADD_TARBALL}"
 }
 
 usage() {
