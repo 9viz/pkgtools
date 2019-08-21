@@ -44,7 +44,6 @@ usage() {
     cat << EOF
 usage:
 pkgadd [opts] <pkgtar>
-    -f  force package installation
     -u  upgrade package
     -r  use alternate root
     -h  print this message
@@ -55,7 +54,6 @@ parse_args() {
     while [[ "${1}" ]]; do
         case ${1} {
         (-h) usage              ;;
-        (-f) force=1            ;;
         (-u) upgrade=1          ;;
         (-r) root="${2}"; shift ;;
         (*)  PKGADD_TAR="${1}"  ;;
@@ -72,6 +70,11 @@ main() {
     PKG_NAME="${PKGADD_TAR%\#*}"
     PKG_VERSION="${PKGADD_TAR#*\#}"
     PKG_VERSION="${PKG_VERSION%\.pkg*}"
+    if [[ ${upgrade} -eq 1 ]]; then
+        upgrade
+    else
+        install
+    fi
 }
 
 PKGTOOLS_DB='/var/lib/pkg'
