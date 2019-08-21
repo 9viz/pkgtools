@@ -2,12 +2,12 @@
 # pkgmk - make package
 
 die() {
-    printf 'error: %s\n' "${1}" >&2
+    printf '>>>>> error: %s\n' "${1}" >&2
     exit ${2:-1}
 }
 
 log() {
-    printf 'log: %s\n' "${1}" >&2
+    printf '>>>>> log: %s\n' "${1}" >&2
 }
 
 check() {
@@ -74,22 +74,11 @@ handle_md5sum() {
     unset -f create_md5sum
 }
 
-get_pkg_content() {
-    for i in "${1:-${PKG}}"/*; {
-        [[ -d "${i}" ]] && get_pkg_content "${i}"
-        [[ -e "${i}" ]] && [[ "${i}" != "${PKG}${PKGTOOLS_DB}"* ]] &&
-            echo "${i/${PKG}\//}"
-    }
-}
-
 mkpkg() {
     local i db
     db="${PKG}${PKGTOOLS_DB}"
     cd "${PKG}"
     mkdir -p "${db}"
-
-    # FIX: find out why the function prints duplicate values
-    get_pkg_content | uniq > "${db}/contents"
 
     echo "${version}" > "${db}/version"
     echo "${USER}" > "${db}/owner"
@@ -100,7 +89,9 @@ mkpkg() {
         echo "${i}" >> "${db}/depends"
     }
 
-    tar czf "${PKGMK_ROOT}/${name}#${version}.pkg.tar.gz" ./
+    find . -type f -exec ksh -c "printf '%s\n' {} | cut -c 3-" \; > "${db}/contents"
+
+    tar -c -z -f "${PKGMK_ROOT}/${name}#${version}.pkg.tar.gz" .
     log 'package created'
 }
 
@@ -123,7 +114,7 @@ parse_args() {
         (-w) _keep_work=1     ;;
         (-h) usage            ;;
         (-M) _ignore_md5=1    ;;
-	(-D) _check_depends=0 ;;
+    (-D) _check_depends=0 ;;
         }
     }
 }
