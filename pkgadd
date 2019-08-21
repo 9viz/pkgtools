@@ -82,6 +82,6 @@ PKGADD_IGNORE=('etc/*')
 PKGADD_TAR=""
 PKG_NAME=""
 PKG_VERSION=""
-root='/'
+root=""
 
 main "${@}"
