@@ -93,6 +93,9 @@ mkpkg() {
 
     tar -c -z -f "${PKGMK_ROOT}/${name}#${version}.pkg.tar.gz" .
     log 'package created'
+
+    # these are nice to have
+    cp "${db}/"{version,owner,depends,contents} "${PKGMK_ROOT}"
 }
 
 usage() {
