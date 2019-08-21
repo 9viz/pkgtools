@@ -2,21 +2,36 @@
 # pkgadd - merge tarball to root
 
 die() {
-    printf 'error: %s\n' "${1}" >&2
+    printf '>>>>> error: %s\n' "${1}" >&2
     exit ${2:-1}
 }
 
 log() {
-    printf 'log: %s\n' "${1}" >&2
+    printf '>>>> log: %s\n' "${1}" >&2
 }
 
 do_upgrade_check() {
+    local ver
     [[ -d "${PKGTOOLS_DB}/${PKG_NAME}" ]] || die 'package not installed!'
     read -r ver < "${PKGTOOLS_DB}/${PKG_NAME}/version"
     [[ "${ver}" != "${PKG_VERSION}" ]]    || die 'package version is the same'
 }
 
 upgrade() {
+    do_upgrade_check
+    replace_files=()
+    local to_add ff
+    for f in `tar -t -f "${PKGADD_TAR}"`; {
+        ff=${f:2}
+        to_add=1
+        [[ -d "${root}/${ff}" ]] && continue
+        for ptrn in ${PKGADD_IGNORE[@]}; {
+            # we need ${ptrn} to be unquoted
+            [[ "${ff}" == ${ptrn} ]] && to_add=0
+        }
+        [[ ${to_add} -eq 1 ]] && replace_files+=("${f}")
+    }
+    tar -C "${root}" -x -z -f "${PKGADD_TAR}" "${replace_files[@]}"
 }
 
 install() {
@@ -42,7 +57,7 @@ parse_args() {
         (-r) root="${2}"; shift ;;
         (*)  PKGADD_TAR="${1}"  ;;
         }
-    shift
+        shift
     done
 }
 
@@ -56,8 +71,11 @@ main() {
     PKG_VERSION="${PKG_VERSION%\.pkg*}"
 }
 
-PKGTOOLS_DB="/var/lib/pkg"
-PKGADD_IGNORE=("etc/*")
+PKGTOOLS_DB='/var/lib/pkg'
+PKGADD_IGNORE=('etc/*')
 PKGADD_TAR=""
 PKG_NAME=""
 PKG_VERSION=""
+root='/'
+
+main "${@}"
