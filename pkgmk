@@ -107,6 +107,7 @@ opts:
     -M  ignore md5sum checking
     -D  don't check dependencies
 EOF
+    exit 0
 }
 
 parse_args() {

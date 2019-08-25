@@ -6,10 +6,6 @@ die() {
     exit ${2:-1}
 }
 
-log() {
-    printf '>>>> log: %s\n' "${1}" >&2
-}
-
 do_upgrade_check() {
     local ver
     [[ -d "${PKGTOOLS_DB}/${PKG_NAME}" ]] || die 'package not installed!'
@@ -43,10 +39,12 @@ install() {
 usage() {
     cat << EOF
 usage: pkgadd [opts] <pkgtar>
+opts:
     -u         upgrade package
     -r <root>  use alternate <root>
     -h         print this message
 EOF
+    exit 0
 }
 
 parse_args() {

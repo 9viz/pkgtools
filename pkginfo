@@ -8,7 +8,7 @@ opts:
     -i            list all packages
     -b <file>     print the package(s) <file> belongs to
     -v <package>  print the version of the <package>
-    -o <packaeg>  print the owner of the <package>
+    -o <package>  print the owner of the <package>
     -l <package>  list the file(s) the <package> provides
     -d <package>  list the dependency(s) of the <package>
     -h            print this help message and exit
