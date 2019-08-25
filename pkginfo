@@ -1,2 +1,61 @@
 #!/bin/ksh
 # pkginfo - print info about pkg
+
+usage() {
+    cat << EOF
+usage: pkginfo [opts]
+opts:
+    -i            list all packages
+    -b <file>     print the package(s) <file> belongs to
+    -v <package>  print the version of the <package>
+    -o <packaeg>  print the owner of the <package>
+    -l <package>  list the file(s) the <package> provides
+    -d <package>  list the dependency(s) of the <package>
+    -h            print this help message and exit
+EOF
+    exit 0
+}
+
+main() {
+    while [[ "${1}" ]]; do
+        case ${1} {
+        (-i)
+            ls -1 "${PKGTOOLS_DB}"
+            ;;
+        (-b)
+            grep "${2}" `find "${PKGTOOLS_DB}" -type f -iname 'contents'`
+            shift
+            ;;
+        (-v)
+            read -r ver < "${PKGTOOLS_DB}/${2}/version"
+            echo "${ver}"
+            shift
+            ;;
+        (-d)
+            while read -r d; do
+                echo "${d}"
+            done < "${PKGTOOLS_DB}/${2}/depends"
+            shift
+            ;;
+        (-o)
+            read -r owner < "${PKGTOOLS_DB}/${2}/owner"
+            echo "${owner}"
+            shift
+            ;;
+        (-l)
+            while read -r f; do
+                echo "${f}"
+            done < "${PKGTOOLS_DB}/${2}/contents"
+            shift
+            ;;
+        (-h)
+            usage
+            ;;
+        }
+        shift
+    done
+}
+
+PKGTOOLS_DB='/var/lib/pkg'
+
+main "${@}"
