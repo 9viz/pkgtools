@@ -1,0 +1,45 @@
+#!/bin/ksh
+# pkgrm - rm package from root
+
+die() {
+    printf '>>>>> error: %s\n' "${1}" >&2
+    exit ${2:-1}
+}
+
+usage() {
+    cat << EOF
+usage: pkgrm [opts] <package>
+opts:
+    -r <root>  set alternate install root
+    -h         print this help message and exit
+EOF
+    exit 0
+}
+
+parse_args() {
+    while [[ "${1}" ]]; do
+        case ${1} {
+        (-r) root="${2}"; shift ;;
+        (-h) usage              ;;
+        (*)  package="${1}"     ;;
+        }
+        shift
+    done
+}
+
+main() {
+    parse_args "${@}"
+    [[ -d "${PKGTOOLS_DB}/${package}" ]] ||
+        die "${package} not installed!"
+    while read -r f; do
+        dir="${f%*/}"
+        rm "${f}"
+        rmdir "${dir}" > /dev/null
+    done < "${PKGTOOLS_DB}/${package}"
+    unset f dir
+}
+
+PKGTOOLS_DB='/var/lib/pkg'
+root=''
+
+main "${@}"
