@@ -42,11 +42,10 @@ install() {
 
 usage() {
     cat << EOF
-usage:
-pkgadd [opts] <pkgtar>
-    -u  upgrade package
-    -r  use alternate root
-    -h  print this message
+usage: pkgadd [opts] <pkgtar>
+    -u         upgrade package
+    -r <root>  use alternate <root>
+    -h         print this message
 EOF
 }
 

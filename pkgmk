@@ -100,8 +100,7 @@ mkpkg() {
 
 usage() {
     cat << EOF
-usage:
-pkgmk [opts]
+usage: pkgmk [opts]
 opts:
     -k  keep work directory
     -h  print this help message
