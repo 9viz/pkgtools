@@ -23,7 +23,7 @@ main() {
             ls -1 "${PKGTOOLS_DB}"
             ;;
         (-b)
-            grep "${2}" `find "${PKGTOOLS_DB}" -type f -iname 'contents'`
+            grep -e "${2}" -r "${PKGTOOLS_DB}/"*'/contents'
             shift
             ;;
         (-v)
