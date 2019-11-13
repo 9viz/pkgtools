@@ -1,5 +1,8 @@
 this readme is a lie for the most part because im too lazy to rewrite this.
 
+does not work with openbsd ksh because of how arrays work and several other
+reasons. use it with mksh.
+
 pkgtools
 ==========
 
