@@ -32,10 +32,11 @@ main() {
     [[ -d "${PKGTOOLS_DB}/${package}" ]] ||
         die "${package} not installed!"
     while read -r f; do
-        dir="${f%*/}"
-        rm "${f}"
-        rmdir "${dir}" > /dev/null
-    done < "${PKGTOOLS_DB}/${package}"
+        dir="${f%/*}"
+        rm "${root}/${f}"
+        # TODO: should also be to remove /usr/share/man when man is empty
+        rmdir "${root}/${dir}" 2> /dev/null
+    done < "${PKGTOOLS_DB}/${package}/contents"
     unset f dir
 }
 
