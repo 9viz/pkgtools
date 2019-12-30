@@ -62,7 +62,7 @@ parse_args() {
 main() {
     local tmp_tar tmp
     parse_args "${@}"
-    [[ "${PKGADD_TAR}" != *\.pkg\.* ]] &&
+    [[ "${PKGADD_TAR}" != *\.pkg\.tar\.gz ]] &&
         die 'not package tarball'
     tmp="${PKGADD_TAR##*/}"
     PKG_NAME="${tmp%\#*}"
