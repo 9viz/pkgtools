@@ -27,25 +27,19 @@ main() {
             shift
             ;;
         (-v)
-            read -r ver < "${PKGTOOLS_DB}/${2}/version"
-            echo "${ver}"
+            cat "${PKGTOOLS_DB}/${2}/version"
             shift
             ;;
         (-d)
-            while read -r d; do
-                echo "${d}"
-            done < "${PKGTOOLS_DB}/${2}/depends"
+            cat "${PKGTOOLS_DB}/${2}/depends"
             shift
             ;;
         (-o)
-            read -r owner < "${PKGTOOLS_DB}/${2}/owner"
-            echo "${owner}"
+            cat "${PKGTOOLS_DB}/${2}/owner"
             shift
             ;;
         (-l)
-            while read -r f; do
-                echo "${f}"
-            done < "${PKGTOOLS_DB}/${2}/contents"
+            cat "${PKGTOOLS_DB}/${2}/contents"
             shift
             ;;
         (-h)
