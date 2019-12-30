@@ -31,13 +31,13 @@ main() {
     parse_args "${@}"
     [[ -d "${PKGTOOLS_DB}/${package}" ]] ||
         die "${package} not installed!"
+    local f dir
     while read -r f; do
         dir="${f%/*}"
         rm "${root}/${f}"
         # TODO: should also be to remove /usr/share/man when man is empty
         rmdir "${root}/${dir}" 2> /dev/null
     done < "${PKGTOOLS_DB}/${package}/contents"
-    unset f dir
 }
 
 PKGTOOLS_DB='/var/lib/pkg'
