@@ -27,13 +27,13 @@ upgrade() {
         }
         [[ ${to_add} -eq 1 ]] && replace_files+=("${f}")
     }
-    tar -C "${root}" -x -z -f "${PKGADD_TAR}" "${replace_files[@]}"
+    tar -C "${root}" -x -f "${PKGADD_TAR}" "${replace_files[@]}"
 }
 
 install() {
     [[ -d "${PKGTOOLS_DB}/${PKG_NAME}" ]] &&
         die "package ${PKG_NAME} already installed! use -u to upgrade"
-    tar -C "${root}" -x -z -f "${PKGADD_TARBALL}"
+    tar -C "${root}" -x -f "${PKGADD_TAR}"
 }
 
 usage() {
@@ -60,18 +60,26 @@ parse_args() {
 }
 
 main() {
+    local tmp_tar tmp
     parse_args "${@}"
     [[ "${PKGADD_TAR}" != *\.pkg\.* ]] &&
         die 'not package tarball'
-    PKGADD_TAR="${PKGADD_TAR##*/}"
-    PKG_NAME="${PKGADD_TAR%\#*}"
-    PKG_VERSION="${PKGADD_TAR#*\#}"
+    tmp="${PKGADD_TAR##*/}"
+    PKG_NAME="${tmp%\#*}"
+    PKG_VERSION="${tmp#*\#}"
     PKG_VERSION="${PKG_VERSION%\.pkg*}"
+
+    tmp_tar=`mktemp`
+    gzip -d "${PKGADD_TAR}" -c > "${tmp_tar}"
+    PKGADD_TAR="${tmp_tar}"
+
     if [[ ${upgrade} -eq 1 ]]; then
         upgrade
     else
         install
     fi
+
+    rm "${tmp_tar}"
 }
 
 PKGTOOLS_DB='/var/lib/pkg'
