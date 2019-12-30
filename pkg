@@ -1,0 +1,39 @@
+#!/bin/ksh
+# pkg - helper for pkgtools
+
+die() {
+    printf '>>>>> error: %s\n' "${1}" >&2
+    exit ${2:-1}
+}
+
+usage() {
+    cat << EOF
+usage: pkg [opts] <package> ...
+opts:
+    in      install <package> along with its dependencies recursively
+    rm      remove <package>
+    drm     remove <package> along with orphan dependencies
+    ls      list contents of <package>
+    cat     write <package>'s pkgfile to stdout
+    lo      list all orphans in system
+    dp      print <package>'s dependencies
+    dpt     print packages dependent on <package>
+EOF
+    exit 0
+}
+
+get_depends() {
+    # does not pollute pkg's variables
+    pkgfile="${1}/pkgfile" ksh -c '
+        . "${pkgfile}"
+        echo "${depends[@]}"
+'
+}
+
+main() {
+    usage
+}
+
+PORTS_PATH='/usr/ports'
+
+main "${@}"
